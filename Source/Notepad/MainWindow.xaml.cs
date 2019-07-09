@@ -8,6 +8,7 @@
     using System.Windows.Documents;
     using Forms = System.Windows.Forms;
     using System.Windows.Input;
+    using System;
 
     internal class FileDialogFilter
     {
@@ -80,7 +81,9 @@
             {
                 this.lastOpenedFilename = ofd.FileName;
                 this.txtEditor.Text = File.ReadAllText(ofd.FileName);
-                this.Title = $"{this.lastOpenedFilename} - {this.originalTitle}";
+                // :)
+                FormattableString title = $"{this.lastOpenedFilename} - {this.originalTitle}";
+                this.Title = title.ToString();
             }
         }
 
@@ -169,21 +172,21 @@
             Forms.DialogResult dr = fd.ShowDialog();
             if (dr != Forms.DialogResult.Cancel)
             {
-                txtEditor.FontFamily = new System.Windows.Media.FontFamily(fd.Font.Name);
-                txtEditor.FontSize = fd.Font.Size * 96.0 / 72.0;
-                txtEditor.FontWeight = fd.Font.Bold ? FontWeights.Bold : FontWeights.Regular;
-                txtEditor.FontStyle = fd.Font.Italic ? FontStyles.Italic : FontStyles.Normal;
+                this.txtEditor.FontFamily = new System.Windows.Media.FontFamily(fd.Font.Name);
+                this.txtEditor.FontSize = fd.Font.Size * 96.0 / 72.0;
+                this.txtEditor.FontWeight = fd.Font.Bold ? FontWeights.Bold : FontWeights.Regular;
+                this.txtEditor.FontStyle = fd.Font.Italic ? FontStyles.Italic : FontStyles.Normal;
             }
         }
 
         private void IncrementFontSize_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            txtEditor.FontSize = txtEditor.FontSize + 1;
+            this.txtEditor.FontSize++;
         }
 
         private void DecrementFontSize_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            txtEditor.FontSize = txtEditor.FontSize - 1;
+            this.txtEditor.FontSize--;
         }
     }
 }
