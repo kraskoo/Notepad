@@ -8,19 +8,18 @@
             "IncrementFontSize",
             "IncrementFontSize",
             typeof(CustomCommands),
-            new InputGestureCollection()
+            new InputGestureCollection
             {
                 new KeyGesture(Key.Add, ModifierKeys.Control)
             });
+
         public static readonly RoutedUICommand DecrementFontSize = new RoutedUICommand(
             "DecrementFontSize",
             "DecrementFontSize",
             typeof(CustomCommands),
-            new InputGestureCollection()
+            new InputGestureCollection
             {
                 new KeyGesture(Key.Subtract, ModifierKeys.Control)
             });
-
-        // Define more commands here, just like the one above
     }
 }

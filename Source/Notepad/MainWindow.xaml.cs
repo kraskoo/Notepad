@@ -1,21 +1,20 @@
 ﻿namespace Notepad
 {
-    using Microsoft.Win32;
     using System.Collections.Generic;
     using System.IO;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Documents;
-    using Forms = System.Windows.Forms;
     using System.Windows.Input;
-    using System;
+    using Forms = System.Windows.Forms;
+    using Microsoft.Win32;
 
     internal class FileDialogFilter
     {
-        public FileDialogFilter(string name, string extesion)
+        public FileDialogFilter(string name, string extension)
         {
             this.Name = name;
-            this.Extension = extesion;
+            this.Extension = extension;
         }
 
         public string Name { get; }
@@ -33,29 +32,31 @@
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly List<FileDialogFilter> FileDialogFilters = new List<FileDialogFilter>
+        private readonly List<FileDialogFilter> fileDialogFilters = new List<FileDialogFilter>
         {
             new FileDialogFilter("Text files", ".txt"),
             new FileDialogFilter("All files", ".*"),
         };
+        private readonly string originalTitle;
+
         private string lastOpenedFilename = string.Empty;
-        private string originalTitle = string.Empty;
-        private bool clickedToFocus = false;
+        private bool clickedToFocus;
 
         public MainWindow()
         {
             this.InitializeComponent();
             this.originalTitle = this.Title;
+            this.clickedToFocus = false;
         }
 
         private void TextBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            this.clickedToFocus = !((TextBox)sender).IsFocused;
+            this.clickedToFocus = !((TextBox) sender).IsFocused;
         }
 
         private void TextBox_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            TextBox tb = (TextBox)sender;
+            var tb = (TextBox) sender;
             if (this.clickedToFocus && tb.SelectedText.Length == 0)
             {
                 tb.CaretIndex = tb.Text.Length;
@@ -68,7 +69,7 @@
 
         private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.txtEditor.Text = string.Empty;
+            this.TextBox.Text = string.Empty;
             this.Title = this.originalTitle;
         }
 
@@ -76,14 +77,12 @@
 
         private void OpenCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            var ofd = new OpenFileDialog { Filter = string.Join("|", FileDialogFilters) };
+            var ofd = new OpenFileDialog {Filter = string.Join("|", this.fileDialogFilters)};
             if (ofd.ShowDialog() == true)
             {
                 this.lastOpenedFilename = ofd.FileName;
-                this.txtEditor.Text = File.ReadAllText(ofd.FileName);
-                // :)
-                FormattableString title = $"{this.lastOpenedFilename} - {this.originalTitle}";
-                this.Title = title.ToString();
+                this.TextBox.Text = File.ReadAllText(ofd.FileName);
+                this.Title = $"{this.lastOpenedFilename} - {this.originalTitle}";
             }
         }
 
@@ -92,7 +91,7 @@
 
         private void SaveCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            File.WriteAllText(this.lastOpenedFilename, this.txtEditor.Text);
+            File.WriteAllText(this.lastOpenedFilename, this.TextBox.Text);
         }
 
         private void SaveAsCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
@@ -100,30 +99,31 @@
 
         private void SaveAsCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            var sfd = new SaveFileDialog { Filter = string.Join("|", FileDialogFilters) };
+            var sfd = new SaveFileDialog {Filter = string.Join("|", this.fileDialogFilters)};
             if (sfd.ShowDialog() == true)
             {
-                File.WriteAllText(sfd.FileName, this.txtEditor.Text);
+                File.WriteAllText(sfd.FileName, this.TextBox.Text);
                 this.lastOpenedFilename = sfd.FileName;
                 this.Title = $"{this.lastOpenedFilename} - {this.originalTitle}";
             }
         }
 
         private void CutCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
-            e.CanExecute = this.txtEditor.SelectionLength > 0;
+            e.CanExecute = this.TextBox.SelectionLength > 0;
 
         private void CutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Clipboard.SetText(this.txtEditor.SelectedText);
-            this.txtEditor.Text = this.txtEditor.Text.Remove(this.txtEditor.CaretIndex, this.txtEditor.SelectedText.Length);
+            Clipboard.SetText(this.TextBox.SelectedText);
+            this.TextBox.Text =
+                this.TextBox.Text.Remove(this.TextBox.CaretIndex, this.TextBox.SelectedText.Length);
         }
 
         private void CopyCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
-            e.CanExecute = this.txtEditor.SelectedText.Length > 0;
+            e.CanExecute = this.TextBox.SelectedText.Length > 0;
 
         private void CopyCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Clipboard.SetText(this.txtEditor.SelectedText);
+            Clipboard.SetText(this.TextBox.SelectedText);
         }
 
         private void PasteCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
@@ -131,28 +131,30 @@
 
         private void PasteCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (this.txtEditor.SelectedText.Length > 0)
+            if (this.TextBox.SelectedText.Length > 0)
             {
-                this.txtEditor.Text = this.txtEditor.Text.Remove(this.txtEditor.CaretIndex, this.txtEditor.SelectedText.Length);
+                this.TextBox.Text =
+                    this.TextBox.Text.Remove(this.TextBox.CaretIndex, this.TextBox.SelectedText.Length);
             }
 
-            this.txtEditor.Text = this.txtEditor.Text.Insert(this.txtEditor.CaretIndex, Clipboard.GetText());
+            this.TextBox.Text = this.TextBox.Text.Insert(this.TextBox.CaretIndex, Clipboard.GetText());
         }
 
         private void DeleteCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
-            e.CanExecute = this.txtEditor.SelectedText.Length > 0;
+            e.CanExecute = this.TextBox.SelectedText.Length > 0;
 
         private void DeleteCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.txtEditor.Text = this.txtEditor.Text.Remove(this.txtEditor.CaretIndex, this.txtEditor.SelectedText.Length);
+            this.TextBox.Text =
+                this.TextBox.Text.Remove(this.TextBox.CaretIndex, this.TextBox.SelectedText.Length);
         }
 
         private void SelectAllCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
-            e.CanExecute = this.txtEditor.Text.Length > 0;
+            e.CanExecute = this.TextBox.Text.Length > 0;
 
         private void SelectAllCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.txtEditor.SelectedText = this.txtEditor.Text;
+            this.TextBox.SelectedText = this.TextBox.Text;
         }
 
         private void PrintCommand_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -160,7 +162,7 @@
             var printDialog = new PrintDialog();
             if (printDialog.ShowDialog() == true)
             {
-                var doc = new FlowDocument(new Paragraph(new Run(txtEditor.Text))) { Name = "FlowDocument" };
+                var doc = new FlowDocument(new Paragraph(new Run(this.TextBox.Text))) {Name = "FlowDocument"};
                 IDocumentPaginatorSource idpSource = doc;
                 printDialog.PrintDocument(idpSource.DocumentPaginator, this.Title);
             }
@@ -168,25 +170,25 @@
 
         private void FontClick(object sender, RoutedEventArgs e)
         {
-            Forms.FontDialog fd = new Forms.FontDialog();
-            Forms.DialogResult dr = fd.ShowDialog();
+            var fd = new Forms.FontDialog();
+            var dr = fd.ShowDialog();
             if (dr != Forms.DialogResult.Cancel)
             {
-                this.txtEditor.FontFamily = new System.Windows.Media.FontFamily(fd.Font.Name);
-                this.txtEditor.FontSize = fd.Font.Size * 96.0 / 72.0;
-                this.txtEditor.FontWeight = fd.Font.Bold ? FontWeights.Bold : FontWeights.Regular;
-                this.txtEditor.FontStyle = fd.Font.Italic ? FontStyles.Italic : FontStyles.Normal;
+                this.TextBox.FontFamily = new System.Windows.Media.FontFamily(fd.Font.Name);
+                this.TextBox.FontSize = fd.Font.Size * 96.0 / 72.0;
+                this.TextBox.FontWeight = fd.Font.Bold ? FontWeights.Bold : FontWeights.Regular;
+                this.TextBox.FontStyle = fd.Font.Italic ? FontStyles.Italic : FontStyles.Normal;
             }
         }
 
         private void IncrementFontSize_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.txtEditor.FontSize++;
+            this.TextBox.FontSize++;
         }
 
         private void DecrementFontSize_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.txtEditor.FontSize--;
+            this.TextBox.FontSize--;
         }
     }
 }

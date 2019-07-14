@@ -8,8 +8,8 @@
         Title="Notepad-K" Height="600" Width="800">
     <Window.Resources>
         <Style TargetType="TextBox">
-            <EventSetter Event="PreviewMouseDown" Handler="TextBox_PreviewMouseDown"/>
-            <EventSetter Event="PreviewMouseUp" Handler="TextBox_PreviewMouseUp"/>
+            <EventSetter Event="PreviewMouseDown" Handler="TextBox_PreviewMouseDown" />
+            <EventSetter Event="PreviewMouseUp" Handler="TextBox_PreviewMouseUp" />
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
@@ -21,7 +21,8 @@
         <CommandBinding Command="Copy" CanExecute="CopyCommand_CanExecute" Executed="CopyCommand_Executed" />
         <CommandBinding Command="Paste" CanExecute="PasteCommand_CanExecute" Executed="PasteCommand_Executed" />
         <CommandBinding Command="Delete" CanExecute="DeleteCommand_CanExecute" Executed="DeleteCommand_Executed" />
-        <CommandBinding Command="SelectAll" CanExecute="SelectAllCommand_CanExecute" Executed="SelectAllCommand_Executed" />
+        <CommandBinding Command="SelectAll" CanExecute="SelectAllCommand_CanExecute"
+                        Executed="SelectAllCommand_Executed" />
         <CommandBinding Command="Print" Executed="PrintCommand_Executed" />
         <CommandBinding Command="local:CustomCommands.IncrementFontSize" Executed="IncrementFontSize_Executed" />
         <CommandBinding Command="local:CustomCommands.DecrementFontSize" Executed="DecrementFontSize_Executed" />
@@ -65,7 +66,8 @@
                 <MenuItem Header="_About" />
             </MenuItem>
         </Menu>
-        <TextBox AcceptsReturn="True" Name="txtEditor" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <TextBox AcceptsReturn="True" Name="TextBox" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto">
             <TextBox.InputBindings>
                 <KeyBinding Modifiers="Ctrl" Key="Add" Command="local:CustomCommands.IncrementFontSize" />
                 <KeyBinding Modifiers="Ctrl" Key="Subtract" Command="local:CustomCommands.DecrementFontSize" />
